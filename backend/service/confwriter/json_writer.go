@@ -32,17 +32,13 @@ func (jw JsonWriter) WhitelistMacs(netConfigs []model.NetConfig) error {
 	if err != nil {
 		return model.Error(http.StatusInternalServerError, err.Error(), "could not open output file")
 	}
+	defer f.Close()
 
 	encoder := json.NewEncoder(f)
 	encoder.SetIndent("", "  ")
 	err = encoder.Encode(reservations)
 	if err != nil {
 		return model.Error(http.StatusInternalServerError, err.Error(), "error on writing output file")
-	}
-
-	err = f.Close()
-	if err != nil {
-		return model.Error(http.StatusInternalServerError, err.Error(), "error when closing output file")
 	}
 
 	return jw.reloadConfig()

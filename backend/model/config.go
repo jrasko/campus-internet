@@ -56,6 +56,7 @@ func LoadUsers(path string) ([]LoginUser, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not open users file: %w", err)
 	}
+	defer file.Close()
 
 	var users []LoginUser
 	err = json.NewDecoder(file).Decode(&users)
