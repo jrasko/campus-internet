@@ -25,7 +25,9 @@ func (s *Service) CreateOrUpdateMember(ctx context.Context, member model.Member)
 
 	member.Sanitize()
 	member.LastEditor, _ = ctx.Value(model.FieldUsername).(string)
-	member.NetConfig.Manufacturer = oui.Mappings[member.NetConfig.Mac[:8]]
+	if len(member.NetConfig.Mac) >= 8 {
+		member.NetConfig.Manufacturer = oui.Mappings[member.NetConfig.Mac[:8]]
+	}
 
 	if member.NetConfig.IP == "" {
 		member.NetConfig.IP, err = s.ipService.GetUnusedIP(ctx)
@@ -103,12 +105,11 @@ func (s *Service) Punish(ctx context.Context) error {
 	if err != nil {
 		return model.WrapGormError(err)
 	}
-	ids := make([]int, len(nonPayers))
-	for i, p := range nonPayers {
-		if p.Member == nil {
-			continue
+	ids := make([]int, 0, len(nonPayers))
+	for _, p := range nonPayers {
+		if p.Member != nil {
+			ids = append(ids, p.Member.NetConfigID)
 		}
-		ids[i] = p.Member.NetConfigID
 	}
 	err = s.netRepo.Deactivate(ctx, ids)
 	if err != nil {

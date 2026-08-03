@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 )
 
 const (
@@ -19,7 +20,10 @@ func (jw JsonWriter) reloadConfig() error {
 		return nil
 	}
 
-	resp, err := http.DefaultClient.Post(
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	resp, err := client.Post(
 		baseURL+":"+port,
 		"application/json",
 		bytes.NewBufferString(`{"command":"config-reload", "service": ["dhcp4"]}`),
@@ -28,6 +32,7 @@ func (jw JsonWriter) reloadConfig() error {
 	if err != nil {
 		return model.Error(http.StatusInternalServerError, err.Error(), "sending update signal to dhcp-server failed")
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return model.Error(
 			http.StatusInternalServerError,

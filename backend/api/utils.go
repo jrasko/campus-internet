@@ -40,7 +40,7 @@ func sendHttpError(w http.ResponseWriter, err error) {
 func logError(err model.HttpError) {
 	var prefix string
 	switch {
-	case err.Status() >= 400 || err.Status() < 404:
+	case err.Status() >= 400 && err.Status() < 404:
 		prefix = "[DEBUG]"
 	case err.Status() > 403 && err.Status() < 499:
 		prefix = "[WARNING]"
