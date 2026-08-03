@@ -43,6 +43,9 @@ func (r Repository) DeleteNetConfig(ctx context.Context, id int) error {
 }
 
 func (r Repository) Deactivate(ctx context.Context, ids []int) error {
+	if len(ids) == 0 {
+		return nil
+	}
 	return r.db.
 		WithContext(ctx).
 		Table(netTable).

@@ -44,7 +44,7 @@ func (a AuthHandler) Middleware(next http.HandlerFunc, permission Permission) ht
 		token, err := jwt.ParseWithClaims(
 			header[7:],
 			&claims,
-			func(token *jwt.Token) (interface{}, error) { return []byte(a.config.HMACSecret), nil },
+			func(token *jwt.Token) (interface{}, error) { return getHMACSecretKey(a.config.HMACSecret), nil },
 			jwt.WithValidMethods([]string{jwt.SigningMethodHS512.Name}),
 		)
 		if err != nil {
@@ -164,11 +164,13 @@ func CreateJWT(user model.LoginUser, secret string) (string, error) {
 		},
 	})
 
-	bytes, err := base64.StdEncoding.DecodeString(secret)
-	if err != nil && len(bytes) >= 64 {
-		return token.SignedString(bytes)
-	}
+	return token.SignedString(getHMACSecretKey(secret))
+}
 
-	log.Printf("[WARNING] could not parse hmac secret as Base64")
-	return token.SignedString([]byte(secret))
+func getHMACSecretKey(secret string) []byte {
+	bytes, err := base64.StdEncoding.DecodeString(secret)
+	if err == nil && len(bytes) >= 64 {
+		return bytes
+	}
+	return []byte(secret)
 }

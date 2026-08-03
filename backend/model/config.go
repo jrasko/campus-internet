@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/sethvargo/go-envconfig"
 )
@@ -50,8 +51,8 @@ func LoadConfig(ctx context.Context) (Configuration, error) {
 	return config, nil
 }
 
-func LoadUsers(filepath string) ([]LoginUser, error) {
-	file, err := os.OpenFile(filepath, os.O_RDONLY|os.O_CREATE, 0644)
+func LoadUsers(path string) ([]LoginUser, error) {
+	file, err := os.OpenFile(filepath.Clean(path), os.O_RDONLY|os.O_CREATE, 0600)
 	if err != nil {
 		return nil, fmt.Errorf("could not open users file: %w", err)
 	}

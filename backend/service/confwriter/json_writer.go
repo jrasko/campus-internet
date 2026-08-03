@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 type JsonWriter struct {
@@ -27,7 +28,7 @@ type reservation struct {
 func (jw JsonWriter) WhitelistMacs(netConfigs []model.NetConfig) error {
 	reservations := mapToReservationUser(netConfigs)
 
-	f, err := os.OpenFile(jw.filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+	f, err := os.OpenFile(filepath.Clean(jw.filename), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return model.Error(http.StatusInternalServerError, err.Error(), "could not open output file")
 	}

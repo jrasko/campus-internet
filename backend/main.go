@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -57,6 +58,14 @@ func newApplication(config model.Configuration) (*application, error) {
 
 func (app application) start() {
 	log.Println("[INFO] Listening at :8080")
-	err := http.ListenAndServe(":8080", app.router)
+	srv := &http.Server{
+		Addr:              ":8080",
+		Handler:           app.router,
+		ReadHeaderTimeout: 3 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      10 * time.Second,
+		IdleTimeout:       120 * time.Second,
+	}
+	err := srv.ListenAndServe()
 	panic(err)
 }
