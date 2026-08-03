@@ -57,7 +57,8 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: testing
       - name: Run Gosec Security Scanner
-        uses: securego/gosec@master
+        uses: securego/gosec@v2
+        working-directory: backend
         with:
           args: ./...
 
