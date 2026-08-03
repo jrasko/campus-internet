@@ -172,5 +172,6 @@ func getHMACSecretKey(secret string) []byte {
 	if err == nil && len(bytes) >= 64 {
 		return bytes
 	}
+	log.Printf("[WARNING] could not parse hmac secret as 64-byte Base64")
 	return []byte(secret)
 }
