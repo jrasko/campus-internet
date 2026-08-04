@@ -6,6 +6,7 @@ name: Frontend build and push
 # documentation.
 
 on:
+  workflow_dispatch:
   push:
     paths: [ frontend/** ]
     branches: [ "master" ]
