@@ -58,9 +58,8 @@ jobs:
           POSTGRES_DB: testing
       - name: Run Gosec Security Scanner
         uses: securego/gosec@v2
-        working-directory: backend
         with:
-          args: ./...
+          args: ./backend/...
 
   push:
     needs:
