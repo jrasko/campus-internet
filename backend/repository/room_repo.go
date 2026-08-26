@@ -25,7 +25,7 @@ func (r Repository) GetRoom(ctx context.Context, number string) (model.Room, err
 	var room model.Room
 	err := r.db.
 		WithContext(ctx).
-		First(&room, number).
+		First(&room, "number = ?", number).
 		Error
 	return room, err
 }
