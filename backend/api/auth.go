@@ -129,22 +129,28 @@ func (a AuthHandler) Login() http.HandlerFunc {
 
 func (a AuthHandler) checkCredentials(credentials Credentials) (model.LoginUser, error) {
 	// search username in configured users
-	var loginUser model.LoginUser
+	loginUser := model.LoginUser{
+		// invalid user with dummy hash for timing attack prevention
+		Username:     "",
+		PasswordHash: "$argon2id$v=19$m=1048576,t=1,p=4$VXN4U0xHQ244WWVYNFhqcXlZZDZGZz09$QyAzGtyKS/q4sQ9irDtwOJH2bfoREvzJg6ZXkK8gLls",
+	}
 	for _, user := range a.config.Users {
 		if user.Username == credentials.Username {
+			// overwrite with a valid user if username is found
 			loginUser = user
 		}
 	}
 
 	// check if username and password are equal
 	pwCheck, err := argon2id.ComparePasswordAndHash(credentials.Password, loginUser.PasswordHash)
-	// check if user is configured
-	if err != nil {
-		return model.LoginUser{}, fmt.Errorf("[ERROR] when checking hash: %v", err)
+	// check if user has been found
+	if loginUser.Username == "" {
+		return model.LoginUser{}, fmt.Errorf("[DEBUG] login for invalid username %s", credentials.Username)
 	}
 
-	if loginUser == (model.LoginUser{}) {
-		return model.LoginUser{}, fmt.Errorf("[DEBUG] login for invalid username %s", credentials.Username)
+	// check if password is correct
+	if err != nil {
+		return model.LoginUser{}, fmt.Errorf("[ERROR] when checking hash: %v", err)
 	}
 	if !pwCheck {
 		return model.LoginUser{}, fmt.Errorf("[DEBUG] wrong password for user %s", credentials.Username)
